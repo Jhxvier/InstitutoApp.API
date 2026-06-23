@@ -1,4 +1,5 @@
-﻿using Academico.Common.Interfaces;
+﻿using Academico.Common.Exceptions;
+using Academico.Common.Interfaces;
 using Academico.Common.Responses;
 using Academico.Entities;
 using AutoMapper;
@@ -26,29 +27,143 @@ namespace Academico.Services
 
         public async Task<Response<EstudianteResponseDTO>> CrearAsync(EstudianteCreateDTO entity)
         {
-            await ValidarAsync(entity);
+            if (entity == null)
+            {
+                throw new InvalidStudentDataException("Debe enviar la información del estudiante");
+            }
 
-            var estudiante = _mapper.Map<Estudiante>(entity);
-            Normalizar(estudiante);
-            estudiante = await _repo.CrearAsync(estudiante);
+            if (!Enum.IsDefined(typeof(TipoIdentificacion), entity.TipoIdentificacion))
+            {
+                throw new InvalidStudentDataException("Debe indicar un tipo de identificación válido");
+            }
+
+            if (string.IsNullOrWhiteSpace(entity.Cedula))
+            {
+                throw new InvalidStudentDataException("La cédula es obligatoria");
+            }
+
+            if (string.IsNullOrWhiteSpace(entity.Nombre))
+            {
+                throw new InvalidStudentDataException("El nombre es obligatorio");
+            }
+
+            if (string.IsNullOrWhiteSpace(entity.PrimerApellido))
+            {
+                throw new InvalidStudentDataException("El primer apellido es obligatorio");
+            }
+
+            if (string.IsNullOrWhiteSpace(entity.SegundoApellido))
+            {
+                throw new InvalidStudentDataException("El segundo apellido es obligatorio");
+            }
+
+            if (string.IsNullOrWhiteSpace(entity.CorreoElectronico))
+            {
+                throw new InvalidStudentDataException("El correo electrónico es obligatorio");
+            }
+
+            if (string.IsNullOrWhiteSpace(entity.Telefono))
+            {
+                throw new InvalidStudentDataException("El teléfono es obligatorio");
+            }
+
+            var estudiantes = await _repo.ObtenerTodosAsync();
+            if (estudiantes.Any(estudiante =>
+                estudiante.Cedula.Trim().Equals(entity.Cedula.Trim(), StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new DuplicateIdentificationException("Ya existe un estudiante con esa cédula");
+            }
+
+            if (estudiantes.Any(estudiante =>
+                estudiante.CorreoElectronico.Trim().Equals(entity.CorreoElectronico.Trim(), StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new DuplicateStudentEmailException("Ya existe un estudiante con ese correo electrónico");
+            }
+
+            var estudianteNuevo = _mapper.Map<Estudiante>(entity);
+            estudianteNuevo.Cedula = estudianteNuevo.Cedula.Trim();
+            estudianteNuevo.Nombre = estudianteNuevo.Nombre.Trim();
+            estudianteNuevo.PrimerApellido = estudianteNuevo.PrimerApellido.Trim();
+            estudianteNuevo.SegundoApellido = estudianteNuevo.SegundoApellido.Trim();
+            estudianteNuevo.CorreoElectronico = estudianteNuevo.CorreoElectronico.Trim();
+            estudianteNuevo.Telefono = estudianteNuevo.Telefono.Trim();
+            estudianteNuevo = await _repo.CrearAsync(estudianteNuevo);
 
             return new Response<EstudianteResponseDTO>
             {
                 Success = true,
                 Message = "Estudiante creado correctamente",
-                Data = _mapper.Map<EstudianteResponseDTO>(estudiante)
+                Data = _mapper.Map<EstudianteResponseDTO>(estudianteNuevo)
             };
         }
 
         public async Task<Response<EstudianteResponseDTO>> ActualizarAsync(EstudianteUpdateDTO entity)
         {
+            if (entity == null)
+            {
+                throw new InvalidStudentDataException("Debe enviar la información del estudiante");
+            }
+
             var estudianteActual = await _repo.ObtenerPorIdAsync(entity.IdEstudiante)
                 ?? throw new NotFoundException($"El estudiante con el id {entity.IdEstudiante} no existe");
 
-            await ValidarAsync(entity, entity.IdEstudiante);
+            if (!Enum.IsDefined(typeof(TipoIdentificacion), entity.TipoIdentificacion))
+            {
+                throw new InvalidStudentDataException("Debe indicar un tipo de identificación válido");
+            }
+
+            if (string.IsNullOrWhiteSpace(entity.Cedula))
+            {
+                throw new InvalidStudentDataException("La cédula es obligatoria");
+            }
+
+            if (string.IsNullOrWhiteSpace(entity.Nombre))
+            {
+                throw new InvalidStudentDataException("El nombre es obligatorio");
+            }
+
+            if (string.IsNullOrWhiteSpace(entity.PrimerApellido))
+            {
+                throw new InvalidStudentDataException("El primer apellido es obligatorio");
+            }
+
+            if (string.IsNullOrWhiteSpace(entity.SegundoApellido))
+            {
+                throw new InvalidStudentDataException("El segundo apellido es obligatorio");
+            }
+
+            if (string.IsNullOrWhiteSpace(entity.CorreoElectronico))
+            {
+                throw new InvalidStudentDataException("El correo electrónico es obligatorio");
+            }
+
+            if (string.IsNullOrWhiteSpace(entity.Telefono))
+            {
+                throw new InvalidStudentDataException("El teléfono es obligatorio");
+            }
+
+            var estudiantes = await _repo.ObtenerTodosAsync();
+            if (estudiantes.Any(estudiante =>
+                estudiante.IdEstudiante != entity.IdEstudiante &&
+                estudiante.Cedula.Trim().Equals(entity.Cedula.Trim(), StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new DuplicateIdentificationException("Ya existe un estudiante con esa cédula");
+            }
+
+            if (estudiantes.Any(estudiante =>
+                estudiante.IdEstudiante != entity.IdEstudiante &&
+                estudiante.CorreoElectronico.Trim().Equals(entity.CorreoElectronico.Trim(), StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new DuplicateStudentEmailException("Ya existe un estudiante con ese correo electrónico");
+            }
 
             var estudiante = _mapper.Map<Estudiante>(entity);
-            Normalizar(estudiante);
+            estudiante.Cedula = estudiante.Cedula.Trim();
+            estudiante.Nombre = estudiante.Nombre.Trim();
+            estudiante.PrimerApellido = estudiante.PrimerApellido.Trim();
+            estudiante.SegundoApellido = estudiante.SegundoApellido.Trim();
+            estudiante.CorreoElectronico = estudiante.CorreoElectronico.Trim();
+            estudiante.Telefono = estudiante.Telefono.Trim();
             estudiante.Estado = estudianteActual.Estado;
             estudiante.FechaCreacion = estudianteActual.FechaCreacion;
             estudiante = await _repo.ActualizarAsync(estudiante);
@@ -102,75 +217,7 @@ namespace Academico.Services
                 Data = _mapper.Map<List<EstudianteResponseDTO>>(estudiantes)
             };
         }
-
-        private async Task ValidarAsync(EstudianteCreateDTO dto, int? id = null)
-        {
-            if (dto == null)
-            {
-                throw new ArgumentException("Debe enviar la información del estudiante");
-            }
-
-            if (!Enum.IsDefined(typeof(TipoIdentificacion), dto.TipoIdentificacion))
-            {
-                throw new ArgumentException("Debe indicar un tipo de identificación válido");
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.Cedula))
-            {
-                throw new ArgumentException("La cédula es obligatoria");
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.Nombre))
-            {
-                throw new ArgumentException("El nombre es obligatorio");
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.PrimerApellido))
-            {
-                throw new ArgumentException("El primer apellido es obligatorio");
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.SegundoApellido))
-            {
-                throw new ArgumentException("El segundo apellido es obligatorio");
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.CorreoElectronico))
-            {
-                throw new ArgumentException("El correo electrónico es obligatorio");
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.Telefono))
-            {
-                throw new ArgumentException("El teléfono es obligatorio");
-            }
-
-            var estudiantes = await _repo.ObtenerTodosAsync();
-            if (estudiantes.Any(estudiante =>
-                (!id.HasValue || estudiante.IdEstudiante != id.Value) &&
-                estudiante.Cedula.Trim().Equals(dto.Cedula.Trim(), StringComparison.OrdinalIgnoreCase)))
-            {
-                throw new ArgumentException("Ya existe un estudiante con esa cédula");
-            }
-
-            if (estudiantes.Any(estudiante =>
-                (!id.HasValue || estudiante.IdEstudiante != id.Value) &&
-                estudiante.CorreoElectronico.Trim().Equals(dto.CorreoElectronico.Trim(), StringComparison.OrdinalIgnoreCase)))
-            {
-                throw new ArgumentException("Ya existe un estudiante con ese correo electrónico");
-            }
-        }
-
-        //metodo externo para limpiar datos con espacios en blanco
-        private static void Normalizar(Estudiante estudiante)
-        {
-            estudiante.Cedula = estudiante.Cedula.Trim();
-            estudiante.Nombre = estudiante.Nombre.Trim();
-            estudiante.PrimerApellido = estudiante.PrimerApellido.Trim();
-            estudiante.SegundoApellido = estudiante.SegundoApellido.Trim();
-            estudiante.CorreoElectronico = estudiante.CorreoElectronico.Trim();
-            estudiante.Telefono = estudiante.Telefono.Trim();
-        }
     }
+
 
 }

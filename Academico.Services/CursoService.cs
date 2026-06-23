@@ -1,4 +1,5 @@
-﻿using Academico.Common.Interfaces;
+﻿using Academico.Common.Exceptions;
+using Academico.Common.Interfaces;
 using Academico.Common.Responses;
 using Academico.Entities;
 using AutoMapper;
@@ -6,6 +7,7 @@ using inaApp.Common.Exceptions;
 using inaApp.DTOs.Curso;
 using System;
 using System.Collections.Generic;
+using System.Data;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -26,10 +28,41 @@ namespace Academico.Services
 
         public async Task<Response<CursoResponseDTO>> CrearAsync(CursoCreateDTO entity)
         {
-            await ValidarAsync(entity);
+            if (entity == null)
+            {
+                throw new InvalidCourseDataException("Debe enviar la información del curso");
+            }
+
+            if (!Enum.IsDefined(typeof(ModalidadCurso), entity.ModalidadCurso))
+            {
+                throw new InvalidCourseDataException("Debe indicar una modalidad válida para el curso");
+            }
+
+            if (string.IsNullOrWhiteSpace(entity.NombreCurso))
+            {
+                throw new InvalidCourseDataException("El nombre del curso es obligatorio");
+            }
+
+            if (string.IsNullOrWhiteSpace(entity.Descripcion))
+            {
+                throw new InvalidCourseDataException("La descripción del curso es obligatoria");
+            }
+
+            if (entity.CupoMaximo <= 0)
+            {
+                throw new InvalidCourseDataException("El cupo máximo debe ser mayor que cero");
+            }
+
+            var cursos = await _repo.ObtenerTodosAsync();
+            if (cursos.Any(curso =>
+                curso.NombreCurso.Trim().Equals(entity.NombreCurso.Trim(), StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new DuplicateNameException("Ya existe un curso con ese nombre");
+            }
 
             var curso = _mapper.Map<Curso>(entity);
-            Normalizar(curso);
+            curso.NombreCurso = curso.NombreCurso.Trim();
+            curso.Descripcion = curso.Descripcion.Trim();
             curso = await _repo.CrearAsync(curso);
 
             return new Response<CursoResponseDTO>
@@ -42,13 +75,45 @@ namespace Academico.Services
 
         public async Task<Response<CursoResponseDTO>> ActualizarAsync(CursoUpdateDTO entity)
         {
+            if (entity == null)
+            {
+                throw new InvalidCourseDataException("Debe enviar la información del curso");
+            }
+
             var cursoActual = await _repo.ObtenerPorIdAsync(entity.IdCurso)
                 ?? throw new NotFoundException($"El curso con el id {entity.IdCurso} no existe");
 
-            await ValidarAsync(entity, entity.IdCurso);
+            if (!Enum.IsDefined(typeof(ModalidadCurso), entity.ModalidadCurso))
+            {
+                throw new InvalidCourseDataException("Debe indicar una modalidad válida para el curso");
+            }
+
+            if (string.IsNullOrWhiteSpace(entity.NombreCurso))
+            {
+                throw new InvalidCourseDataException("El nombre del curso es obligatorio");
+            }
+
+            if (string.IsNullOrWhiteSpace(entity.Descripcion))
+            {
+                throw new InvalidCourseDataException("La descripción del curso es obligatoria");
+            }
+
+            if (entity.CupoMaximo <= 0)
+            {
+                throw new InvalidCourseDataException("El cupo máximo debe ser mayor que cero");
+            }
+
+            var cursos = await _repo.ObtenerTodosAsync();
+            if (cursos.Any(curso =>
+                curso.IdCurso != entity.IdCurso &&
+                curso.NombreCurso.Trim().Equals(entity.NombreCurso.Trim(), StringComparison.OrdinalIgnoreCase)))
+            {
+                throw new DuplicateNameException("Ya existe un curso con ese nombre");
+            }
 
             var curso = _mapper.Map<Curso>(entity);
-            Normalizar(curso);
+            curso.NombreCurso = curso.NombreCurso.Trim();
+            curso.Descripcion = curso.Descripcion.Trim();
             curso.Estado = cursoActual.Estado;
             curso.FechaCreacion = cursoActual.FechaCreacion;
             curso = await _repo.ActualizarAsync(curso);
@@ -101,49 +166,6 @@ namespace Academico.Services
                 Message = "Consulta realizada correctamente",
                 Data = _mapper.Map<List<CursoResponseDTO>>(cursos)
             };
-        }
-
-        private async Task ValidarAsync(CursoCreateDTO dto, int? id = null)
-        {
-            if (dto == null)
-            {
-                throw new ArgumentException("Debe enviar la información del curso");
-            }
-
-            if (!Enum.IsDefined(typeof(ModalidadCurso), dto.ModalidadCurso))
-            {
-                throw new ArgumentException("Debe indicar una modalidad válida para el curso");
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.NombreCurso))
-            {
-                throw new ArgumentException("El nombre del curso es obligatorio");
-            }
-
-            if (string.IsNullOrWhiteSpace(dto.Descripcion))
-            {
-                throw new ArgumentException("La descripción del curso es obligatoria");
-            }
-
-            if (dto.CupoMaximo <= 0)
-            {
-                throw new ArgumentException("El cupo máximo debe ser mayor que cero");
-            }
-
-            var cursos = await _repo.ObtenerTodosAsync();
-            if (cursos.Any(curso =>
-                (!id.HasValue || curso.IdCurso != id.Value) &&
-                curso.NombreCurso.Trim().Equals(dto.NombreCurso.Trim(), StringComparison.OrdinalIgnoreCase)))
-            {
-                throw new ArgumentException("Ya existe un curso con ese nombre");
-            }
-        }
-
-        //metodo externo para limpiar datos con espacios en blanco
-        private static void Normalizar(Curso curso)
-        {
-            curso.NombreCurso = curso.NombreCurso.Trim();
-            curso.Descripcion = curso.Descripcion.Trim();
         }
     }
 
