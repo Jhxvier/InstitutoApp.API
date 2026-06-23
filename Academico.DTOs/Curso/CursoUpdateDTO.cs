@@ -7,7 +7,7 @@ using System.Threading.Tasks;
 
 namespace inaApp.DTOs.Curso
 {
-    public class CursoUpdateDTO : CursoCreateDTO
+    public class CursoUpdateDTO : CursoCreateDTO //update hereda campos de Create
     {
         [Required]
         public int IdCurso { get; set; }

@@ -16,13 +16,14 @@ namespace Academico.Api.Controllers
         {
             _service = service;
         }
-
+        //get all
         [HttpGet]
         public async Task<ActionResult> Get()
         {
             return Ok(await _service.ObtenerTodosAsync());
         }
 
+        //get by id
         [HttpGet("{id}")]
         public async Task<ActionResult> Get(int id)
         {
@@ -40,7 +41,7 @@ namespace Academico.Api.Controllers
                 return NotFound(ex.Message);
             }
         }
-
+        //post
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] EstudianteCreateDTO dto)
         {
@@ -66,7 +67,7 @@ namespace Academico.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
+        //put
         [HttpPut("{id}")]
         public async Task<ActionResult> Put(int id, [FromBody] EstudianteUpdateDTO dto)
         {
@@ -102,7 +103,7 @@ namespace Academico.Api.Controllers
                 return BadRequest(ex.Message);
             }
         }
-
+        //delete
         [HttpDelete("{id}")]
         public async Task<ActionResult> Delete(int id)
         {

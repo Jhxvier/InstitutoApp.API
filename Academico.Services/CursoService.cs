@@ -25,7 +25,7 @@ namespace Academico.Services
             _repo = repo;
             _mapper = mapper;
         }
-
+        //CREAR
         public async Task<Response<CursoResponseDTO>> CrearAsync(CursoCreateDTO entity)
         {
             if (entity == null)
@@ -60,6 +60,7 @@ namespace Academico.Services
                 throw new DuplicateNameException("Ya existe un curso con ese nombre");
             }
 
+            //LIMPIAR ESPACIOS EN BLANCO DE DATOS INGRESADOS
             var curso = _mapper.Map<Curso>(entity);
             curso.NombreCurso = curso.NombreCurso.Trim();
             curso.Descripcion = curso.Descripcion.Trim();
@@ -73,6 +74,7 @@ namespace Academico.Services
             };
         }
 
+        //ACTUALIZAR
         public async Task<Response<CursoResponseDTO>> ActualizarAsync(CursoUpdateDTO entity)
         {
             if (entity == null)
@@ -111,6 +113,7 @@ namespace Academico.Services
                 throw new DuplicateNameException("Ya existe un curso con ese nombre");
             }
 
+            ////LIMPIAR ESPACIOS EN BLANCO DE DATOS INGRESADOS
             var curso = _mapper.Map<Curso>(entity);
             curso.NombreCurso = curso.NombreCurso.Trim();
             curso.Descripcion = curso.Descripcion.Trim();
@@ -126,6 +129,7 @@ namespace Academico.Services
             };
         }
 
+        //ELIMINAR
         public async Task<Response<bool>> EliminarAsync(int id)
         {
             var eliminado = await _repo.EliminarAsync(id);
@@ -143,6 +147,7 @@ namespace Academico.Services
             };
         }
 
+        //OBTNEER POR ID
         public async Task<Response<CursoResponseDTO>> ObtenerPorIdAsync(int id)
         {
             var curso = await _repo.ObtenerPorIdAsync(id)
@@ -156,6 +161,7 @@ namespace Academico.Services
             };
         }
 
+        //OBTENER TODOS
         public async Task<Response<List<CursoResponseDTO>>> ObtenerTodosAsync()
         {
             var cursos = await _repo.ObtenerTodosAsync();

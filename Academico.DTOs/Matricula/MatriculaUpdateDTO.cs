@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace Academico.DTOs.Matricula
 {
+    //NO SE UTULIZA PERO SE DEJA ABIERTO PARA APLICARSE CUANDO SE REQUIERA 
     public class MatriculaUpdateDTO
     {
         [Required]

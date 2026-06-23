@@ -18,13 +18,14 @@ namespace Academico.Api.Controllers
         {
             _service = service;
         }
-
+        //get all
         [HttpGet]
         public async Task<ActionResult> Get()
         {
             return Ok(await _service.ObtenerTodosAsync());
         }
-
+        
+        //get by id
         [HttpGet("{id}")]
         public async Task<ActionResult> Get(int id)
         {
@@ -42,7 +43,7 @@ namespace Academico.Api.Controllers
                 return NotFound(ex.Message);
             }
         }
-
+        //post
         [HttpPost]
         public async Task<ActionResult> Post([FromBody] MatriculaCreateDTO dto)
         {

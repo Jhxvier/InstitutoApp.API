@@ -25,6 +25,7 @@ namespace Academico.Services
             _mapper = mapper;
         }
 
+        //CREAR
         public async Task<Response<EstudianteResponseDTO>> CrearAsync(EstudianteCreateDTO entity)
         {
             if (entity == null)
@@ -80,6 +81,7 @@ namespace Academico.Services
                 throw new DuplicateStudentEmailException("Ya existe un estudiante con ese correo electrónico");
             }
 
+            //LIMPIAR ESPACIOS EN BLANCO DE DATOS INGRESADOS
             var estudianteNuevo = _mapper.Map<Estudiante>(entity);
             estudianteNuevo.Cedula = estudianteNuevo.Cedula.Trim();
             estudianteNuevo.Nombre = estudianteNuevo.Nombre.Trim();
@@ -97,6 +99,7 @@ namespace Academico.Services
             };
         }
 
+        //ACTUALZIAR
         public async Task<Response<EstudianteResponseDTO>> ActualizarAsync(EstudianteUpdateDTO entity)
         {
             if (entity == null)
@@ -157,6 +160,7 @@ namespace Academico.Services
                 throw new DuplicateStudentEmailException("Ya existe un estudiante con ese correo electrónico");
             }
 
+            //LIMPIAR ESPACIOS EN BLANCO DE DATOS INGRESADOS
             var estudiante = _mapper.Map<Estudiante>(entity);
             estudiante.Cedula = estudiante.Cedula.Trim();
             estudiante.Nombre = estudiante.Nombre.Trim();
@@ -176,6 +180,7 @@ namespace Academico.Services
             };
         }
 
+        //ELIMINAR
         public async Task<Response<bool>> EliminarAsync(int id)
         {
             var eliminado = await _repo.EliminarAsync(id);
@@ -193,6 +198,7 @@ namespace Academico.Services
             };
         }
 
+        //OBTENER POR ID
         public async Task<Response<EstudianteResponseDTO>> ObtenerPorIdAsync(int id)
         {
             var estudiante = await _repo.ObtenerPorIdAsync(id)
@@ -206,6 +212,7 @@ namespace Academico.Services
             };
         }
 
+        //OBTENER TODOS
         public async Task<Response<List<EstudianteResponseDTO>>> ObtenerTodosAsync()
         {
             var estudiantes = await _repo.ObtenerTodosAsync();

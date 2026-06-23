@@ -33,6 +33,7 @@ namespace Academico.Services
             _mapper = mapper;
         }
 
+        //CREAR
         public async Task<Response<MatriculaResponseDTO>> CrearAsync(MatriculaCreateDTO entity)
         {
             if (entity == null)
@@ -80,6 +81,7 @@ namespace Academico.Services
             };
         }
 
+        //ACTUALIZAR
         public async Task<Response<MatriculaResponseDTO>> ActualizarAsync(MatriculaUpdateDTO entity)
         {
             var matricula = await _matriculaRepo.ObtenerPorIdAsync(entity.IdMatricula)
@@ -93,6 +95,7 @@ namespace Academico.Services
             };
         }
 
+        //ELIMINAR
         public async Task<Response<bool>> EliminarAsync(int id)
         {
             var eliminado = await _matriculaRepo.EliminarAsync(id);
@@ -110,6 +113,7 @@ namespace Academico.Services
             };
         }
 
+        //OBTENER POR ID
         public async Task<Response<MatriculaResponseDTO>> ObtenerPorIdAsync(int id)
         {
             var matricula = await _matriculaRepo.ObtenerPorIdAsync(id)
@@ -123,6 +127,7 @@ namespace Academico.Services
             };
         }
 
+        //OBTENER TODOS
         public async Task<Response<List<MatriculaResponseDTO>>> ObtenerTodosAsync()
         {
             var matriculas = await _matriculaRepo.ObtenerTodosAsync();
