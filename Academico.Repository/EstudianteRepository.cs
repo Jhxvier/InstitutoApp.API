@@ -1,5 +1,7 @@
 ﻿using Academico.Common.Interfaces;
+using Academico.Data;
 using Academico.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,29 +12,56 @@ namespace Academico.Repository
 {
     public class EstudianteRepository : IGenericRepository<Estudiante>
     {
-        public Task<Estudiante> ActualizarAsync(Estudiante entity)
+        private readonly ApplicationDbContext _dbContext;
+
+        public EstudianteRepository(ApplicationDbContext dbContext)
         {
-            throw new NotImplementedException();
+            _dbContext = dbContext;
         }
 
-        public Task<Estudiante> CrearAsync(Estudiante entity)
+        public async Task<Estudiante> ActualizarAsync(Estudiante entity)
         {
-            throw new NotImplementedException();
+            _dbContext.Estudiante.Update(entity);
+            await _dbContext.SaveChangesAsync();
+            return entity;
         }
 
-        public Task<bool> EliminarAsync(int id)
+        public async Task<Estudiante> CrearAsync(Estudiante entity)
         {
-            throw new NotImplementedException();
+            _dbContext.Estudiante.Add(entity);
+            await _dbContext.SaveChangesAsync();
+            return entity;
         }
 
-        public Task<Estudiante> ObtenerPorIdAsync(int id)
+        public async Task<bool> EliminarAsync(int id)
         {
-            throw new NotImplementedException();
+            var estudiante = await ObtenerPorIdAsync(id);
+            if (estudiante == null)
+            {
+                return false;
+            }
+
+            estudiante.Estado = false;
+            _dbContext.Estudiante.Update(estudiante);
+            await _dbContext.SaveChangesAsync();
+            return true;
         }
 
-        public Task<List<Estudiante>> ObtenerTodosAsync()
+        public async Task<Estudiante> ObtenerPorIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _dbContext.Estudiante
+                .AsNoTracking()
+                .Where(estudiante => estudiante.IdEstudiante == id && estudiante.Estado)
+                .SingleOrDefaultAsync();
+        }
+
+        public async Task<List<Estudiante>> ObtenerTodosAsync()
+        {
+            return await _dbContext.Estudiante
+                .AsNoTracking()
+                .Where(estudiante => estudiante.Estado)
+                .ToListAsync();
         }
     }
+
 }

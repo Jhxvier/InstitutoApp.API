@@ -25,7 +25,7 @@ namespace Academico.Entities
 
         [Required]
         [StringLength(100)]
-        public string Descripcion { get;set; }
+        public string Descripcion { get; set; }
 
         [Required]
         [Range(1, int.MaxValue, ErrorMessage = "El Cupo Máximo del curso no puede ser negativo")]
@@ -34,6 +34,8 @@ namespace Academico.Entities
         public bool Estado { get; set; } = true;
         public DateTime FechaCreacion { get; set; } = DateTime.Now;
 
-
+        public ICollection<Matricula> Matriculas { get; set; } = new List<Matricula>();
     }
+
+
 }

@@ -39,14 +39,19 @@ namespace Academico.Entities
 
         [Required]
         [EmailAddress]
-        public string CorreoElectronico { get; set; } 
+        [MaxLength(150)]
+        public string CorreoElectronico { get; set; }
 
         [Required]
         [MaxLength(20)]
         [Phone]
         public string Telefono { get; set; }
 
-        public bool Estado {  get; set; } = true;
-        public DateTime FechaCreacion {  get; set; } = DateTime.Now;
+        public bool Estado { get; set; } = true;
+        public DateTime FechaCreacion { get; set; } = DateTime.Now;
+
+        public ICollection<Matricula> Matriculas { get; set; } = new List<Matricula>();
     }
+
+
 }

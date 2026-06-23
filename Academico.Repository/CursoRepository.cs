@@ -1,5 +1,7 @@
 ﻿using Academico.Common.Interfaces;
+using Academico.Data;
 using Academico.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,29 +12,56 @@ namespace Academico.Repository
 {
     public class CursoRepository : IGenericRepository<Curso>
     {
-        public Task<Curso> ActualizarAsync(Curso entity)
+        private readonly ApplicationDbContext _dbContext;
+
+        public CursoRepository(ApplicationDbContext dbContext)
         {
-            throw new NotImplementedException();
+            _dbContext = dbContext;
         }
 
-        public Task<Curso> CrearAsync(Curso entity)
+        public async Task<Curso> ActualizarAsync(Curso entity)
         {
-            throw new NotImplementedException();
+            _dbContext.Curso.Update(entity);
+            await _dbContext.SaveChangesAsync();
+            return entity;
         }
 
-        public Task<bool> EliminarAsync(int id)
+        public async Task<Curso> CrearAsync(Curso entity)
         {
-            throw new NotImplementedException();
+            _dbContext.Curso.Add(entity);
+            await _dbContext.SaveChangesAsync();
+            return entity;
         }
 
-        public Task<Curso> ObtenerPorIdAsync(int id)
+        public async Task<bool> EliminarAsync(int id)
         {
-            throw new NotImplementedException();
+            var curso = await ObtenerPorIdAsync(id);
+            if (curso == null)
+            {
+                return false;
+            }
+
+            curso.Estado = false;
+            _dbContext.Curso.Update(curso);
+            await _dbContext.SaveChangesAsync();
+            return true;
         }
 
-        public Task<List<Curso>> ObtenerTodosAsync()
+        public async Task<Curso> ObtenerPorIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _dbContext.Curso
+                .AsNoTracking()
+                .Where(curso => curso.IdCurso == id && curso.Estado)
+                .SingleOrDefaultAsync();
+        }
+
+        public async Task<List<Curso>> ObtenerTodosAsync()
+        {
+            return await _dbContext.Curso
+                .AsNoTracking()
+                .Where(curso => curso.Estado)
+                .ToListAsync();
         }
     }
+
 }

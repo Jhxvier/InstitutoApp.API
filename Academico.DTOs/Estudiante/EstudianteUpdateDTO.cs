@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Academico.DTOs.Estudiante
+namespace inaApp.DTOs.Estudiante
 {
-    internal class EstudianteUpdateDTO
+    public class EstudianteUpdateDTO : EstudianteCreateDTO
     {
+        [Required]
+        public int IdEstudiante { get; set; }
     }
 }
+

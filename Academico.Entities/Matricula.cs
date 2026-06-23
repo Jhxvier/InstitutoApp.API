@@ -23,5 +23,9 @@ namespace Academico.Entities
 
         public bool Estado { get; set; } = true;
         public DateTime FechaCreacion { get; set; } = DateTime.Now;
+
+        public Estudiante Estudiante { get; set; }
+        public Curso Curso { get; set; }
     }
+
 }

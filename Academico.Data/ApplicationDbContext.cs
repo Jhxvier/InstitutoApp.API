@@ -16,15 +16,44 @@ namespace Academico.Data
         }
 
         //fluent API
+        protected override void OnModelCreating(ModelBuilder modelBuilder)
+        {
+
+            modelBuilder.Entity<Estudiante>()
+                .HasIndex(estudiante => estudiante.Cedula)
+                .IsUnique();
+
+            modelBuilder.Entity<Estudiante>()
+                .HasIndex(estudiante => estudiante.CorreoElectronico)
+                .IsUnique();
+
+            modelBuilder.Entity<Curso>()
+                .HasIndex(curso => curso.NombreCurso)
+                .IsUnique();
+
+            modelBuilder.Entity<Matricula>()
+                .HasIndex(matricula => new { matricula.EstudianteId, matricula.CursoId })
+                .IsUnique();
+
+            modelBuilder.Entity<Matricula>()
+                .HasOne(matricula => matricula.Estudiante)
+                .WithMany(estudiante => estudiante.Matriculas)
+                .HasForeignKey(matricula => matricula.EstudianteId)
+                .OnDelete(DeleteBehavior.Restrict);
+
+            modelBuilder.Entity<Matricula>()
+                .HasOne(matricula => matricula.Curso)
+                .WithMany(curso => curso.Matriculas)
+                .HasForeignKey(matricula => matricula.CursoId)
+                .OnDelete(DeleteBehavior.Restrict);
 
 
+            base.OnModelCreating(modelBuilder);
+        }
 
-
-
-        public DbSet<Estudiante> Estudiante {  get; set; }
+        
+        public DbSet<Estudiante> Estudiante { get; set; }
         public DbSet<Curso> Curso { get; set; }
         public DbSet<Matricula> Matricula { get; set; }
-
-
     }
 }

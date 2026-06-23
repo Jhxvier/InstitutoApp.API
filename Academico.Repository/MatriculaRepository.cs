@@ -1,5 +1,7 @@
 ﻿using Academico.Common.Interfaces;
+using Academico.Data;
 using Academico.Entities;
+using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -10,29 +12,60 @@ namespace Academico.Repository
 {
     public class MatriculaRepository : IGenericRepository<Matricula>
     {
-        public Task<Matricula> ActualizarAsync(Matricula entity)
+        private readonly ApplicationDbContext _dbContext;
+
+        public MatriculaRepository(ApplicationDbContext dbContext)
         {
-            throw new NotImplementedException();
+            _dbContext = dbContext;
         }
 
-        public Task<Matricula> CrearAsync(Matricula entity)
+        public async Task<Matricula> ActualizarAsync(Matricula entity)
         {
-            throw new NotImplementedException();
+            _dbContext.Matricula.Update(entity);
+            await _dbContext.SaveChangesAsync();
+            return entity;
         }
 
-        public Task<bool> EliminarAsync(int id)
+        public async Task<Matricula> CrearAsync(Matricula entity)
         {
-            throw new NotImplementedException();
+            _dbContext.Matricula.Add(entity);
+            await _dbContext.SaveChangesAsync();
+            return await ObtenerPorIdAsync(entity.IdMatricula);
         }
 
-        public Task<Matricula> ObtenerPorIdAsync(int id)
+        public async Task<bool> EliminarAsync(int id)
         {
-            throw new NotImplementedException();
+            var matricula = await ObtenerPorIdAsync(id);
+            if (matricula == null)
+            {
+                return false;
+            }
+
+            matricula.Estado = false;
+            _dbContext.Matricula.Update(matricula);
+            await _dbContext.SaveChangesAsync();
+            return true;
         }
 
-        public Task<List<Matricula>> ObtenerTodosAsync()
+        public async Task<Matricula> ObtenerPorIdAsync(int id)
         {
-            throw new NotImplementedException();
+            return await _dbContext.Matricula
+                .AsNoTracking()
+                .Include(matricula => matricula.Estudiante)
+                .Include(matricula => matricula.Curso)
+                .Where(matricula => matricula.IdMatricula == id && matricula.Estado)
+                .SingleOrDefaultAsync();
+        }
+
+        public async Task<List<Matricula>> ObtenerTodosAsync()
+        {
+            return await _dbContext.Matricula
+                .AsNoTracking()
+                .Include(matricula => matricula.Estudiante)
+                .Include(matricula => matricula.Curso)
+                .Where(matricula => matricula.Estado)
+                .ToListAsync();
         }
     }
+
 }

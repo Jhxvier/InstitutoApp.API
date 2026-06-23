@@ -1,12 +1,16 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel.DataAnnotations;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace Academico.DTOs.Curso
+namespace inaApp.DTOs.Curso
 {
-    internal class CursoUpdateDTO
+    public class CursoUpdateDTO : CursoCreateDTO
     {
+        [Required]
+        public int IdCurso { get; set; }
     }
 }
+
