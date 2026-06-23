@@ -35,6 +35,7 @@ namespace Academico.Data
                 .HasIndex(matricula => new { matricula.EstudianteId, matricula.CursoId })
                 .IsUnique();
 
+            //consulta relacional - tabla intermedia
             modelBuilder.Entity<Matricula>()
                 .HasOne(matricula => matricula.Estudiante)
                 .WithMany(estudiante => estudiante.Matriculas)
@@ -51,7 +52,6 @@ namespace Academico.Data
             base.OnModelCreating(modelBuilder);
         }
 
-        
         public DbSet<Estudiante> Estudiante { get; set; }
         public DbSet<Curso> Curso { get; set; }
         public DbSet<Matricula> Matricula { get; set; }
